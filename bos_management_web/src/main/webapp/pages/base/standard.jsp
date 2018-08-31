@@ -32,7 +32,7 @@
 					pageList: [30,50,100],
 					pagination : true,
 					toolbar : toolbar,
-					url : "${pageContext.request.contextPath}/data/standard.json",
+					url : "${pageContext.request.contextPath}/standardAction_pageQuery.action",
 					idField : 'id',
 					columns : columns
 				});
@@ -42,16 +42,23 @@
 			var toolbar = [ {
 				id : 'button-add',
 				text : '增加',
-				iconCls : 'icon-add',
+				iconCls : 'icoenn-add',
 				handler : function(){
-					alert('增加');
+					$("#standardWindow").window("open");
 				}
 			}, {
 				id : 'button-edit',
 				text : '修改',
 				iconCls : 'icon-edit',
 				handler : function(){
-					alert('修改');
+
+				    var rows = $("#grid").datagrid("getSelections");
+					if(rows.length != 1){
+						$.messager.alert("系统信息","只能选中一条记录操作！","warning");
+					}else{
+					    $("#standardForm").form("load",rows[0])
+						$("#standardWindow").window("open");
+					}
 				}
 			},{
 				id : 'button-delete',
@@ -126,12 +133,22 @@
 			<div region="north" style="height:31px;overflow:hidden;" split="false" border="false">
 				<div class="datagrid-toolbar">
 					<a id="save" icon="icon-save" href="#" class="easyui-linkbutton" plain="true">保存</a>
+					<script type="text/javascript">
+						$("#save").click(function () {
+
+						    var r = $("#standardForm").form("validate");
+
+						    if(r){
+						        $("#standardForm").submit();
+							}
+                        });
+					</script>
 				</div>
 			</div>
 
 			<div region="center" style="overflow:auto;padding:5px;" border="false">
 				
-				<form>
+				<form id="standardForm" action="${pageContext.request.contextPath}/standarAction_save.action" method="post">
 					<table class="table-edit" width="80%" align="center">
 						<tr class="title">
 							<td colspan="2">收派标准信息

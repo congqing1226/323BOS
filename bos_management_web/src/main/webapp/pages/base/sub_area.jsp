@@ -129,17 +129,17 @@
 					return "" ;
 				}
 			}, {
-				field : 'addresskey',
+				field : 'keyWords',
 				title : '关键字',
 				width : 120,
 				align : 'center'
 			}, {
-				field : 'startnum',
+				field : 'startNum',
 				title : '起始号',
 				width : 100,
 				align : 'center'
 			}, {
-				field : 'endnum',
+				field : 'endNum',
 				title : '终止号',
 				width : 100,
 				align : 'center'
@@ -164,7 +164,7 @@
 					pageList: [30,50,100],
 					pagination : true,
 					toolbar : toolbar,
-					url : "${pageContext.request.contextPath}/data/sub_area.json",
+					url : "${pageContext.request.contextPath}/subAreaAction_pageQuery.action",
 					idField : 'id',
 					columns : columns,
 					onDblClickRow : doDblClickRow
@@ -220,6 +220,23 @@
 			<div style="height:31px;overflow:hidden;" split="false" border="false">
 				<div class="datagrid-toolbar">
 					<a id="save" icon="icon-save" href="#" class="easyui-linkbutton" plain="true">保存</a>
+
+					<script type="text/javascript">
+
+						$("#save").click(function () {
+
+							var r = $("#subareaForm").form("validate");
+
+						    if(r){
+								$("#subareaForm").submit();
+							}
+                        });
+
+
+
+					</script>
+
+
 				</div>
 			</div>
 
@@ -234,7 +251,7 @@
 							<td>
 								<input class="easyui-combobox" name="area.id"
 									 data-options="valueField:'id',textField:'name',
-									 url:'',editable:false" />
+									 url:'${pageContext.request.contextPath}/areaAction_findAll.action',editable:false" />
 							</td>
 						</tr>
 						<tr>

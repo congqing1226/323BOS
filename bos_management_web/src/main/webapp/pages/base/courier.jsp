@@ -20,20 +20,49 @@
 			function doAdd(){
 				$('#addWindow').window("open");
 			}
-			
+
 			function doEdit(){
 				alert("修改...");
 			}
 			
 			function doDelete(){
-				alert("删除...");
-			}
-			
+
+			    var rows = $("#grid").datagrid("getSelections");
+				if(rows.length == 0){
+				    $.messager.alert('系统信息','至少选择一条记录操作','info');
+				}else{
+					$.messager.confirm('系统信息','是否要删除选中的记录？',function (r) {
+						if(r){
+						    var arr = new Array();
+						    for(var i=0;i<rows.length;i++){
+								var id = rows[i].id;
+								arr.push(id);
+							}
+
+							var ids = arr.join(",");
+							window.location.href=
+								"${pageContext.request.contextPath}/courierAction_deleteBantch.action?ids="+ids;
+						}
+
+
+
+                    })
+				}
+
+            }
+
 			function doRestore(){
 				alert("将取派员还原...");
 			}
 			//工具栏
 			var toolbar = [ {
+                id : 'button-add',
+                text : '查询',
+                iconCls : 'icon-search',
+                handler : function () {
+					$("#searchWindow").window("open");
+                }
+            }, {
 				id : 'button-add',	
 				text : '增加',
 				iconCls : 'icon-add',
@@ -88,12 +117,14 @@
 				title : '取派标准',
 				width : 120,
 				align : 'center',
-				formatter : function(data,row, index){
+				formatter:function (data,row,index) {
+					//返回JSON对象时, 使用row对象，代表整个JSON对象
 					if(row.standard != null){
 						return row.standard.name;
+					}else{
+						return "";
 					}
-					return "";
-				}
+                }
 			}, {
 				field : 'type',
 				title : '取派员类型',
@@ -109,13 +140,13 @@
 				title : '是否作废',
 				width : 80,
 				align : 'center',
-				formatter : function(data,row, index){
-					if(data=="0"){
-						return "正常使用"
+				formatter:function (data,row,index) {
+					if(data == "1"){
+					    return "已经作废";
 					}else{
-						return "已作废";
+					    return "正常使用";
 					}
-				}
+                }
 			}, {
 				field : 'vehicleType',
 				title : '车型',
@@ -142,7 +173,7 @@
 					pageList: [30,50,100],
 					pagination : true,
 					toolbar : toolbar,
-					url : "${pageContext.request.contextPath}/data/courier.json",
+					url : "${pageContext.request.contextPath}/courierAction_pageQuery.action",
 					idField : 'id',
 					columns : columns,
 					onDblClickRow : doDblClickRow
@@ -175,11 +206,24 @@
 			<div region="north" style="height:31px;overflow:hidden;" split="false" border="false">
 				<div class="datagrid-toolbar">
 					<a id="save" icon="icon-save" href="#" class="easyui-linkbutton" plain="true">保存</a>
+
+					<script type="text/javascript">
+						$("#save").click(function () {
+
+						   var v = $("#courierForm").form("validate");
+							if(v){
+							    $("#courierForm").submit();
+							}
+
+                        });
+
+
+					</script>
 				</div>
 			</div>
 
 			<div region="center" style="overflow:auto;padding:5px;" border="false">
-				<form>
+				<form id="courierForm" action="${pageContext.request.contextPath}/courierAction_save.action" method="post" >
 					<table class="table-edit" width="80%" align="center">
 						<tr class="title">
 							<td colspan="4">收派员信息</td>
@@ -277,6 +321,40 @@
 						<tr>
 							<td colspan="2"><a id="searchBtn" href="#" class="easyui-linkbutton" data-options="iconCls:'icon-search'">查询</a> </td>
 						</tr>
+
+						<script type="text/javascript">
+							$("#searchBtn").click(function () {
+
+							    //alert("qqqqqqqqqqqqqq");
+								//转换JSON
+								var condition = $("#searchForm").serializeJson();
+								console.info(condition)
+
+								//使用load方法，提交数据
+								$("#grid").datagrid("load",condition);
+
+								$("#searchWindow").window("close");
+							});
+
+                            //将表单序中输入项列化为json格式-json对象  {"输入项name":"输入项的值"}
+                            $.fn.serializeJson=function(){
+                                var serializeObj={};
+                                var array=this.serializeArray();
+                                var str=this.serialize();
+                                $(array).each(function(){
+                                    if(serializeObj[this.name]){
+                                        if($.isArray(serializeObj[this.name])){
+                                            serializeObj[this.name].push(this.value);
+                                        }else{
+                                            serializeObj[this.name]=[serializeObj[this.name],this.value];
+                                        }
+                                    }else{
+                                        serializeObj[this.name]=this.value;
+                                    }
+                                });
+                                return serializeObj;
+                            };
+						</script>
 					</table>
 				</form>
 			</div>
